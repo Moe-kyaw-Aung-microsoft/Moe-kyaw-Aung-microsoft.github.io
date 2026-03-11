@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Moe Kyaw Aung — Senior Android Developer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #07090f;
+      --surface:  #0e1117;
+      --border:   #1e2535;
+      --accent:   #00d4ff;
+      --accent2:  #7b5ea7;
+      --text:     #c9d1e0;
+      --muted:    #5a6478;
+      --white:    #eef1f8;
+      --green:    #00e5a0;
+      --warn:     #ffb347;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 400;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.4;
+    }
+
+    /* ── GRID BG ── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    /* ── GLOW ORBS ── */
+    .orb {
+      position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
+      filter: blur(120px);
+    }
+    .orb-1 { width: 500px; height: 500px; background: rgba(0,212,255,0.07); top: -100px; left: -150px; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(123,94,167,0.08); bottom: 10%; right: -100px; }
+    .orb-3 { width: 300px; height: 300px; background: rgba(0,229,160,0.05); top: 50%; left: 40%; }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 900px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(7,9,15,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav .container { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; padding-bottom: 14px; }
+    .nav-logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem; font-weight: 500;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+    .nav-logo span { color: var(--muted); }
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-links a {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; font-weight: 400;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center;
+      padding-top: 80px; padding-bottom: 60px;
+    }
+    .hero-inner { width: 100%; }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem; color: var(--accent);
+      letter-spacing: 0.15em; text-transform: uppercase;
+      margin-bottom: 28px;
+      opacity: 0; animation: fadeUp 0.6s 0.2s forwards;
+    }
+    .hero-tag::before {
+      content: ''; display: block;
+      width: 32px; height: 1px; background: var(--accent);
+    }
+    .hero-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(3rem, 8vw, 6rem);
+      line-height: 1.05;
+      color: var(--white);
+      margin-bottom: 8px;
+      opacity: 0; animation: fadeUp 0.7s 0.35s forwards;
+    }
+    .hero-name em { color: var(--accent); font-style: italic; }
+    .hero-role {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(0.85rem, 2vw, 1rem);
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      margin-bottom: 32px;
+      opacity: 0; animation: fadeUp 0.7s 0.5s forwards;
+    }
+    .hero-role strong { color: var(--accent2); }
+    .hero-summary {
+      max-width: 580px;
+      font-size: 1rem; color: var(--text);
+      line-height: 1.8;
+      margin-bottom: 44px;
+      opacity: 0; animation: fadeUp 0.7s 0.65s forwards;
+    }
+    .hero-actions {
+      display: flex; gap: 14px; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp 0.7s 0.8s forwards;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 26px; border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem; font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      text-decoration: none; transition: all 0.25s; cursor: pointer; border: none;
+    }
+    .btn-primary {
+      background: var(--accent); color: #07090f;
+    }
+    .btn-primary:hover { background: #33deff; transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,212,255,0.3); }
+    .btn-ghost {
+      background: transparent; color: var(--accent);
+      border: 1px solid rgba(0,212,255,0.3);
+    }
+    .btn-ghost:hover { border-color: var(--accent); background: rgba(0,212,255,0.07); transform: translateY(-2px); }
+
+    .hero-contacts {
+      margin-top: 50px; display: flex; gap: 24px; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp 0.7s 0.95s forwards;
+    }
+    .contact-pill {
+      display: flex; align-items: center; gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem; color: var(--muted);
+    }
+    .contact-pill .dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
+
+    /* ── SECTION ── */
+    section { padding: 80px 0; }
+    .section-header {
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 48px;
+    }
+    .section-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; color: var(--accent);
+      letter-spacing: 0.1em;
+    }
+    .section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      color: var(--white);
+    }
+    .section-line { flex: 1; height: 1px; background: var(--border); }
+
+    /* ── SKILLS ── */
+    .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+    .skill-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: 22px;
+      transition: border-color 0.25s, transform 0.25s;
+      position: relative; overflow: hidden;
+    }
+    .skill-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(0,212,255,0.04) 0%, transparent 60%);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .skill-card:hover { border-color: rgba(0,212,255,0.35); transform: translateY(-3px); }
+    .skill-card:hover::before { opacity: 1; }
+    .skill-card-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem; font-weight: 700;
+      color: var(--accent); letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 12px;
+    }
+    .skill-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      background: rgba(30,37,53,0.8);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 3px 10px; border-radius: 3px;
+    }
+
+    /* ── EXPERIENCE ── */
+    .timeline { position: relative; }
+    .timeline::before {
+      content: ''; position: absolute;
+      left: 11px; top: 8px; bottom: 0; width: 1px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+    }
+    .job {
+      padding-left: 40px; margin-bottom: 52px; position: relative;
+    }
+    .job-dot {
+      position: absolute; left: 0; top: 8px;
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--bg); border: 1px solid var(--accent);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .job-dot::after {
+      content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+    }
+    .job-header { margin-bottom: 14px; }
+    .job-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.25rem; color: var(--white); margin-bottom: 4px;
+    }
+    .job-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; color: var(--muted);
+      display: flex; gap: 16px; flex-wrap: wrap;
+    }
+    .job-meta .company { color: var(--accent2); }
+    .job-bullets { list-style: none; }
+    .job-bullets li {
+      position: relative; padding-left: 18px; margin-bottom: 8px;
+      font-size: 0.92rem; color: var(--text);
+    }
+    .job-bullets li::before {
+      content: '▸'; position: absolute; left: 0; color: var(--accent); font-size: 0.75rem; top: 3px;
+    }
+
+    /* ── PROJECTS ── */
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 24px; }
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px; padding: 28px;
+      transition: all 0.3s;
+      position: relative; overflow: hidden;
+    }
+    .project-card::after {
+      content: ''; position: absolute;
+      bottom: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transform: scaleX(0); transition: transform 0.3s;
+    }
+    .project-card:hover { border-color: rgba(0,212,255,0.3); transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+    .project-card:hover::after { transform: scaleX(1); }
+    .project-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem; color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .project-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.2rem; color: var(--white); margin-bottom: 10px;
+    }
+    .project-stack {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;
+    }
+    .project-stack .tag { color: var(--accent); border-color: rgba(0,212,255,0.2); }
+    .project-desc { font-size: 0.88rem; color: var(--text); line-height: 1.7; }
+    .project-links { display: flex; gap: 12px; margin-top: 16px; }
+    .project-link {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+      color: var(--accent); text-decoration: none;
+      display: flex; align-items: center; gap: 5px;
+      letter-spacing: 0.05em; transition: color 0.2s;
+    }
+    .project-link:hover { color: var(--green); }
+
+    /* ── EDUCATION ── */
+    .edu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .edu-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 24px;
+    }
+    .edu-degree {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.05rem; color: var(--white); margin-bottom: 6px;
+    }
+    .edu-uni {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; color: var(--accent); margin-bottom: 4px;
+    }
+    .edu-year { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+
+    /* ── CERTS ── */
+    .certs-list { display: flex; flex-wrap: wrap; gap: 12px; }
+    .cert {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 10px 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; color: var(--text);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .cert::before { content: '✦'; color: var(--warn); font-size: 0.6rem; }
+
+    /* ── CONTACT ── */
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .contact-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 20px 24px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .contact-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; flex-shrink: 0;
+    }
+    .contact-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem; color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.1em; margin-bottom: 3px;
+    }
+    .contact-value {
+      font-size: 0.88rem; color: var(--white);
+    }
+    .contact-value a { color: var(--accent); text-decoration: none; }
+    .contact-value a:hover { text-decoration: underline; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 0; text-align: center;
+    }
+    footer p {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em;
+    }
+    footer span { color: var(--accent); }
+
+    /* ── LANG BADGE ── */
+    .lang-row { display: flex; gap: 14px; flex-wrap: wrap; }
+    .lang-badge {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 10px 20px;
+      font-size: 0.88rem;
+    }
+    .lang-badge strong { color: var(--white); display: block; margin-bottom: 2px; }
+    .lang-badge span { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s, transform 0.6s; }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .projects-grid, .edu-grid, .contact-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="container">
+    <div class="nav-logo">MKA<span>.dev</span></div>
+    <ul class="nav-links">
+      <li><a href="#experience">Exp</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#education">Edu</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-tag">Senior Android Developer</div>
+      <h1 class="hero-name">Moe Kyaw <em>Aung</em></h1>
+      <p class="hero-role"><strong>Microsoft</strong> · Tachileik, Myanmar</p>
+      <p class="hero-summary">
+        Senior Android Developer with 5+ years of experience designing, developing and deploying
+        scalable mobile applications using Kotlin/Java, Firebase and RESTful APIs. Proven track record
+        delivering high-quality Android apps end-to-end, applying DevOps practices for CI/CD and
+        automated testing.
+      </p>
+      <div class="hero-actions">
+        <a href="mailto:moekyawaung@asia.com" class="btn btn-primary">Get In Touch</a>
+        <a href="https://github.com/Moekyawaung-developer" target="_blank" class="btn btn-ghost">GitHub Profile ↗</a>
+      </div>
+      <div class="hero-contacts">
+        <div class="contact-pill"><span class="dot"></span> Available for opportunities</div>
+        <div class="contact-pill" style="--dot-color:var(--accent2)">📍 Tachileik, Myanmar</div>
+        <div class="contact-pill">📞 09889000889</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-num">01 //</span>
+      <h2 class="section-title">Core Skills</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="skills-grid reveal">
+      <div class="skill-card">
+        <div class="skill-card-title">Android</div>
+        <div class="skill-tags">
+          <span class="tag">Kotlin</span><span class="tag">Java</span>
+          <span class="tag">Android SDK</span><span class="tag">Jetpack Compose</span>
+          <span class="tag">ViewModel</span><span class="tag">LiveData</span>
+          <span class="tag">Room</span><span class="tag">Navigation</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-title">Architecture</div>
+        <div class="skill-tags">
+          <span class="tag">MVVM</span><span class="tag">MVI</span>
+          <span class="tag">Clean Architecture</span><span class="tag">Modular</span>
+          <span class="tag">SOLID</span><span class="tag">OOP</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-title">Backend & APIs</div>
+        <div class="skill-tags">
+          <span class="tag">REST API</span><span class="tag">Retrofit</span>
+          <span class="tag">OkHttp</span><span class="tag">Volley</span>
+          <span class="tag">JSON</span><span class="tag">Claude API</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-title">Cloud & Firebase</div>
+        <div class="skill-tags">
+          <span class="tag">Firebase Auth</span><span class="tag">Firestore</span>
+          <span class="tag">Realtime DB</span><span class="tag">Cloud Functions</span>
+          <span class="tag">FCM</span><span class="tag">Crashlytics</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-title">DevOps & Tooling</div>
+        <div class="skill-tags">
+          <span class="tag">GitHub Actions</span><span class="tag">Azure DevOps</span>
+          <span class="tag">Jenkins</span><span class="tag">Git</span>
+          <span class="tag">Gradle</span><span class="tag">Postman</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-title">Testing & Quality</div>
+        <div class="skill-tags">
+          <span class="tag">JUnit</span><span class="tag">Espresso</span>
+          <span class="tag">UI Testing</span><span class="tag">Unit Testing</span>
+          <span class="tag">Debugging</span><span class="tag">Profiling</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-title">Data & Storage</div>
+        <div class="skill-tags">
+          <span class="tag">SQLite</span><span class="tag">Room</span>
+          <span class="tag">SharedPreferences</span><span class="tag">Offline-first</span>
+          <span class="tag">Caching</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-title">Project Management</div>
+        <div class="skill-tags">
+          <span class="tag">Agile</span><span class="tag">Scrum</span>
+          <span class="tag">Jira</span><span class="tag">Trello</span>
+          <span class="tag">Azure Boards</span><span class="tag">Code Review</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-num">02 //</span>
+      <h2 class="section-title">Experience</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="timeline">
+      <div class="job reveal">
+        <div class="job-dot"></div>
+        <div class="job-header">
+          <div class="job-title">Senior Android Developer</div>
+          <div class="job-meta">
+            <span class="company">Microsoft</span>
+            <span>Tachileik, Myanmar</span>
+            <span>2022 – Present</span>
+          </div>
+        </div>
+        <ul class="job-bullets">
+          <li>Led the design and development of Android applications using Kotlin/Java, Jetpack and Clean Architecture for high performance and scalability.</li>
+          <li>Integrated multiple REST APIs and Firebase services (Auth, Firestore, Cloud Messaging, Crashlytics) to deliver real-time, secure and reliable user experiences.</li>
+          <li>Implemented CI/CD pipelines (GitHub Actions / Azure DevOps) for automated builds, tests and Play Store releases, reducing release time and production bugs.</li>
+          <li>Optimized app performance through profiling, refactoring and asynchronous programming (Coroutines/RxJava) — improving startup time and memory usage.</li>
+          <li>Collaborated with Product, Design and QA in Agile sprints; participated in planning, estimation, code reviews and retrospectives.</li>
+          <li>Mentored junior developers on Android best practices, code quality, Git workflows and DevOps culture.</li>
+        </ul>
+      </div>
+      <div class="job reveal">
+        <div class="job-dot"></div>
+        <div class="job-header">
+          <div class="job-title">Android Developer</div>
+          <div class="job-meta">
+            <span class="company">Previous Company</span>
+            <span>Myanmar</span>
+            <span>2019 – 2022</span>
+          </div>
+        </div>
+        <ul class="job-bullets">
+          <li>Developed and maintained Android apps from concept to deployment using Java/Kotlin and Android Studio.</li>
+          <li>Consumed RESTful web services; implemented robust error handling, caching and offline support.</li>
+          <li>Used Firebase for push notifications, analytics, remote config and crash reporting to improve user engagement and stability.</li>
+          <li>Wrote unit and UI tests to increase code coverage and improve reliability prior to releases.</li>
+          <li>Worked closely with backend engineers to define API contracts and troubleshoot integration issues.</li>
+          <li>Contributed to UI/UX improvements following Material Design guidelines and accessibility best practices.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-num">03 //</span>
+      <h2 class="section-title">Key Projects</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="projects-grid">
+      <div class="project-card reveal">
+        <div class="project-num">01 / PROJECT</div>
+        <div class="project-title">MoekyawTranslator</div>
+        <div class="project-stack">
+          <span class="tag">Kotlin</span><span class="tag">Jetpack Compose</span>
+          <span class="tag">MVVM</span><span class="tag">Claude API</span>
+          <span class="tag">TTS / STT</span>
+        </div>
+        <p class="project-desc">
+          Full-native Android translation app powered by the Anthropic Claude API. Supports 8 languages including Myanmar, Chinese, Thai, Japanese, Korean and Hindi. Features speech recognition input and text-to-speech output, offline-first architecture, and Material Design 3 UI.
+        </p>
+        <div class="project-links">
+          <a href="https://github.com/Moekyawaung-developer" target="_blank" class="project-link">⌥ GitHub ↗</a>
+        </div>
+      </div>
+      <div class="project-card reveal">
+        <div class="project-num">02 / DEVOPS</div>
+        <div class="project-title">Android CI/CD Pipeline</div>
+        <div class="project-stack">
+          <span class="tag">GitHub Actions</span><span class="tag">Gradle</span>
+          <span class="tag">YAML</span><span class="tag">Play Store API</span>
+        </div>
+        <p class="project-desc">
+          Modernized GitHub Actions CI/CD workflows for Android — covering automated builds, lint checks, instrumented tests, release signing, dependency audits and Play Store deployment. Reduced manual release effort and post-release defects significantly.
+        </p>
+        <div class="project-links">
+          <a href="https://github.com/Moekyawaung-developer" target="_blank" class="project-link">⌥ GitHub ↗</a>
+        </div>
+      </div>
+      <div class="project-card reveal">
+        <div class="project-num">03 / WEB</div>
+        <div class="project-title">Developer Portfolio — Bio</div>
+        <div class="project-stack">
+          <span class="tag">Next.js</span><span class="tag">GitHub Pages</span>
+          <span class="tag">Dark Cyber UI</span><span class="tag">CI/CD</span>
+        </div>
+        <p class="project-desc">
+          Polished GitHub Pages portfolio with a dark cyber aesthetic, animated GitHub stats, contribution snake, WakaTime integration and shield.io badges. Showcases skills, projects and professional brand for Android developer roles.
+        </p>
+        <div class="project-links">
+          <a href="https://github.com/Moe-kyaw-Aung-microsoft/next.js" target="_blank" class="project-link">⌥ GitHub ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EDUCATION -->
+<section id="education">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-num">04 //</span>
+      <h2 class="section-title">Education</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="edu-grid reveal">
+      <div class="edu-card">
+        <div class="edu-degree">Bachelor of Computer Science</div>
+        <div class="edu-uni">University of Computer Studies, Pathein</div>
+        <div class="edu-year">Myanmar · Computer Science</div>
+      </div>
+      <div class="edu-card">
+        <div class="edu-degree">Bachelor of Arts in English</div>
+        <div class="edu-uni">Pathein Distance University</div>
+        <div class="edu-year">Myanmar · English Language</div>
+      </div>
+    </div>
+    <br/>
+    <div class="section-header reveal" style="margin-top:32px; margin-bottom:24px;">
+      <span class="section-num">04b //</span>
+      <h3 class="section-title" style="font-size:1.4rem;">Certifications</h3>
+      <div class="section-line"></div>
+    </div>
+    <div class="certs-list reveal">
+      <div class="cert">Java — Programming Hub</div>
+      <div class="cert">Kotlin — Programming Hub</div>
+      <div class="cert">Android Development — Programming Hub</div>
+      <div class="cert">Data Structures & Algorithms</div>
+      <div class="cert">Firebase Development</div>
+      <div class="cert">Git & Version Control</div>
+      <div class="cert">Cybersecurity Basics</div>
+      <div class="cert">Computer Vision with Python</div>
+    </div>
+  </div>
+</section>
+
+<!-- LANGUAGES -->
+<section style="padding: 40px 0 80px;">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-num">05 //</span>
+      <h2 class="section-title">Languages</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="lang-row reveal">
+      <div class="lang-badge">
+        <strong>Myanmar (Burmese)</strong>
+        <span>Native</span>
+      </div>
+      <div class="lang-badge">
+        <strong>English</strong>
+        <span>Professional Working Proficiency</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" style="padding-bottom: 100px;">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-num">06 //</span>
+      <h2 class="section-title">Contact</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="contact-grid reveal">
+      <div class="contact-item">
+        <div class="contact-icon">✉</div>
+        <div>
+          <div class="contact-label">Email</div>
+          <div class="contact-value"><a href="mailto:moekyawaung@asia.com">moekyawaung@asia.com</a></div>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">📞</div>
+        <div>
+          <div class="contact-label">Phone</div>
+          <div class="contact-value">09889000889</div>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">⌥</div>
+        <div>
+          <div class="contact-label">GitHub</div>
+          <div class="contact-value"><a href="https://github.com/Moekyawaung-developer" target="_blank">Moekyawaung-developer ↗</a></div>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">in</div>
+        <div>
+          <div class="contact-label">LinkedIn</div>
+          <div class="contact-value"><a href="#" target="_blank">linkedin.com/in/moekyawaung</a></div>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">▶</div>
+        <div>
+          <div class="contact-label">Play Store</div>
+          <div class="contact-value"><a href="#" target="_blank">View published apps ↗</a></div>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">📍</div>
+        <div>
+          <div class="contact-label">Location</div>
+          <div class="contact-value">Tachileik, Myanmar</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <p>© 2025 <span>Moe Kyaw Aung</span> · Senior Android Developer · Microsoft · Tachileik, Myanmar</p>
+    <p style="margin-top:6px;">Built with purpose. Deployed on <span>GitHub Pages</span>.</p>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
